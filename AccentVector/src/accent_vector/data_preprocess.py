@@ -1,39 +1,26 @@
 """Fine-tuning data preparation for Accent Vector on F5-TTS.
 
-Two stages:
+Input is an ``audio_file|text`` metadata CSV, built per corpus by the scripts in
+Datasets/prep-scripts/ (which also apply the paper's >= 3 s floor, Section 4.2).
 
-1. ``build-vctk`` -- scan a VCTK-0.92 tree, keep one representative accent
-   (default the England/"English" speakers, the paper's British variety;
-   VCTK 4.2), filter out clips shorter than 3 s (paper Section 4.2), and emit
-   a ``metadata.csv`` in F5's ``audio_file|text`` format.
-
-   For non-English target languages (Phases B/C) you supply your own
-   ``audio_file|text`` CSV directly and skip straight to ``prepare``.
-
-2. ``prepare`` -- tokenize transcripts and write the F5 Arrow dataset
+``prepare`` -- tokenize transcripts and write the F5 Arrow dataset
    (``train.arrow``/``train_duration.json`` + ``valid.arrow``/``valid_duration.json``
    + ``vocab.txt``) that ``finetune_cli.py`` consumes -- this fork's trainer loads
    a pre-split train/valid pair (``load_dataset(..., audio_type="train"|"valid")``),
    not a single ``raw.arrow``. The split is controlled by ``--val-frac`` (default
    0.1, floored at 1 clip). Reuses the pretrained vocab for fine-tuning.
 
-The tokenizer is F5's default ``pinyin`` map; for English text
-``convert_char_to_pinyin`` passes letters through unchanged, so it is the right
-choice for the British/English phase. Non-Latin target scripts (Hindi,
-Arabic, Korean) are NOT covered by the base vocab -- romanize the transcripts
-or extend the vocab first (see ADAPTATION_PLAN.md, gotcha #2).
+The tokenizer is F5's default ``pinyin`` map: Latin letters pass through
+unchanged and Hanzi become pinyin. Other non-Latin scripts (Devanagari, Bengali,
+Arabic) are NOT covered by the base vocab -- romanise the transcripts first
+(Datasets/prep-scripts/indicvoices/romanize.py) and check with common/vocab_check.py.
 
 Usage
 -----
-    python -m accent_vector.data_preprocess build-vctk \
-        --vctk-root /data/VCTK-Corpus-0.92 \
-        --accent English \
-        --out-csv data/finetuning_data/british/metadata.csv
-
     python -m accent_vector.data_preprocess prepare \
-        --audio-root /data/VCTK-Corpus-0.92 \
-        --metadata   data/finetuning_data/british/metadata.csv \
-        --out-dir    data/british_pinyin
+        --metadata   /path/to/cgn_dutch_clips/metadata.dnsmos.csv \
+        --audio-root /path/to/cgn_dutch_clips \
+        --out-dir    $F5_ROOT/data/dutch_pinyin
 """
 
 import argparse
@@ -55,7 +42,6 @@ from f5_tts.model.utils import convert_char_to_pinyin
 # F5-TTS tree (e.g. F5_VOCAB=$F5_ROOT/examples/vocab.txt); default is unchanged.
 PRETRAINED_VOCAB_PATH = os.environ.get("F5_VOCAB") or files("f5_tts").joinpath("../../data/vocab.txt")
 MAX_WORKERS = max(1, multiprocessing.cpu_count() - 1)
-MIN_DURATION_S = 3.0  # paper Section 4.2: discard utterances < 3 s
 
 
 def audio_duration(path):
@@ -70,93 +56,7 @@ def audio_duration(path):
     return info.frames / info.samplerate
 
 
-# --- stage 1: VCTK -> audio_file|text metadata ------------------------------
-def load_vctk_accents(vctk_root):
-    """speaker_id -> accent, parsed from VCTK's speaker-info.txt."""
-    info_path = Path(vctk_root) / "speaker-info.txt"
-    if not info_path.exists():
-        raise FileNotFoundError(f"speaker-info.txt not found under {vctk_root}")
-    accents = {}
-    with open(info_path, encoding="utf-8") as f:
-        header = True
-        for line in f:
-            parts = line.split()
-            if header:  # first row is the column header (ID AGE GENDER ACCENTS ...)
-                header = False
-                continue
-            if len(parts) < 4:
-                continue
-            speaker_id, _age, _gender, accent = parts[0], parts[1], parts[2], parts[3]
-            accents[speaker_id] = accent
-    return accents
-
-
-def find_audio(vctk_root, speaker, utt_id):
-    """Locate the clip for a VCTK utterance across the corpus's layout variants."""
-    root = Path(vctk_root)
-    candidates = [
-        root / "wav48_silence_trimmed" / speaker / f"{utt_id}_mic1.flac",
-        root / "wav48_silence_trimmed" / speaker / f"{utt_id}_mic2.flac",
-        root / "wav48" / speaker / f"{utt_id}.wav",
-    ]
-    for c in candidates:
-        if c.exists():
-            return c
-    return None
-
-
-def build_vctk_metadata(vctk_root, accent, out_csv, min_duration=MIN_DURATION_S):
-    vctk_root = Path(vctk_root)
-    accents = load_vctk_accents(vctk_root)
-    speakers = sorted(s for s, a in accents.items() if a.lower() == accent.lower())
-    if not speakers:
-        raise ValueError(
-            f"No speakers with accent '{accent}'. Present accents: "
-            f"{sorted(set(accents.values()))}"
-        )
-    print(f"[build-vctk] accent '{accent}': {len(speakers)} speakers")
-
-    txt_root = vctk_root / "txt"
-    rows, kept, skipped_short, skipped_missing = [], 0, 0, 0
-    for speaker in tqdm(speakers, desc="speakers"):
-        spk_txt_dir = txt_root / speaker
-        if not spk_txt_dir.is_dir():
-            continue
-        for txt_file in sorted(spk_txt_dir.glob(f"{speaker}_*.txt")):
-            utt_id = txt_file.stem
-            audio = find_audio(vctk_root, speaker, utt_id)
-            if audio is None:
-                skipped_missing += 1
-                continue
-            try:
-                duration = audio_duration(audio)
-            except Exception:
-                skipped_missing += 1
-                continue
-            if duration < min_duration:
-                skipped_short += 1
-                continue
-            text = txt_file.read_text(encoding="utf-8").strip()
-            if not text:
-                continue
-            # store audio path relative to vctk_root so --audio-root stays portable
-            rows.append((audio.relative_to(vctk_root).as_posix(), text))
-            kept += 1
-
-    out_csv = Path(out_csv)
-    out_csv.parent.mkdir(parents=True, exist_ok=True)
-    with open(out_csv, "w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f, delimiter="|")
-        writer.writerow(["audio_file", "text"])
-        writer.writerows(rows)
-    print(
-        f"[build-vctk] kept {kept} clips (>= {min_duration}s); "
-        f"skipped {skipped_short} short, {skipped_missing} missing -> {out_csv}"
-    )
-    return out_csv
-
-
-# --- stage 2: metadata -> F5 Arrow dataset ----------------------------------
+# --- metadata -> F5 Arrow dataset ----------------------------------
 def read_audio_text_pairs(csv_path, audio_root):
     pairs = []
     audio_root = Path(audio_root)
@@ -248,12 +148,6 @@ def _build_parser():
     parser = argparse.ArgumentParser(description="Accent Vector data preparation")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    p_v = sub.add_parser("build-vctk", help="VCTK tree -> audio_file|text metadata")
-    p_v.add_argument("--vctk-root", required=True)
-    p_v.add_argument("--accent", default="English", help="VCTK ACCENTS value to keep")
-    p_v.add_argument("--out-csv", required=True)
-    p_v.add_argument("--min-duration", type=float, default=MIN_DURATION_S)
-
     p_p = sub.add_parser("prepare", help="metadata -> F5 Arrow dataset")
     p_p.add_argument("--metadata", required=True, help="audio_file|text CSV")
     p_p.add_argument("--audio-root", required=True, help="prefix joined to CSV audio paths")
@@ -271,9 +165,7 @@ def _build_parser():
 
 def main():
     args = _build_parser().parse_args()
-    if args.command == "build-vctk":
-        build_vctk_metadata(args.vctk_root, args.accent, args.out_csv, args.min_duration)
-    elif args.command == "prepare":
+    if args.command == "prepare":
         prepare_dataset(
             args.metadata, args.audio_root, args.out_dir,
             is_finetune=not args.no_finetune_vocab,

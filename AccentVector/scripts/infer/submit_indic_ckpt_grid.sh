@@ -25,7 +25,7 @@
 set -uo pipefail
 
 ACCENT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"; cd "$ACCENT_DIR"; mkdir -p logs
-. "$(cd "$(dirname "$0")/../lib" && pwd)/prompt_refs.sh"   # l1base / NATIVE_PREFIX / gdir
+. "$(cd "$(dirname "$0")/../common" && pwd)/prompt_refs.sh"   # l1base / NATIVE_PREFIX / gdir
 
 ACCENT=${ACCENT:?set ACCENT=hindi, bengali, arabic or mandarin}
 

@@ -5,11 +5,7 @@ speech against natural reference speech. It is the one piece of this folder the
 dissertation pipeline depends on: `AccentVector`'s `shared.load_eval()` imports it, and
 `score_sweep.py` / `score_prosody.py` compute `rq1.csv` / `rq3.csv` through it.
 
-> **The SOTA baseline benchmark that this folder started as has been archived** on the
-> `stale-branch-PAE` branch (`Evaluation/`, alongside its earlier notebook generation in
-> `SOTA_models_experiments/`). That is where `synthesis_driver.py`, `run_eval.py`,
-> `eval_config.py`, `visualize_results.py`, `backfill_metrics.py`, `run_pipeline.sh`,
-> `arctic.data` and `evaluation_results.csv` now live. Nothing on `main` imports them.
+The earlier SOTA-baseline benchmark lives on the `stale-branch-PAE` branch.
 
 ## Metrics
 
@@ -121,7 +117,7 @@ checkpoint's `ModuleList` loads positionally.
 ## Notes / caveats for the writeup
 
 - **Accent taxonomy**: GenAID's 13 classes don't cover the accents studied — Dutch has
-  no class, Bengali collapses into `southasian` (see `GENAID_TO_VCTK`). This is why the
+  no class, Bengali collapses into `southasian` (see `GENAID_TO_TARGET`). This is why the
   accent-vector eval scores `cs_accent` (embedding cosine) rather than `aid_acc` (label
   match); the reasoning is in `AccentVector/src/accent_vector/score_sweep.py`. A
   CommonAccent ECAPA secondary classifier was wired as an alternative `predict_fn` and

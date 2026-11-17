@@ -52,17 +52,14 @@ execute_eval_tasks() {
         "seedtts_test_zh")
             python src/f5_tts/eval/eval_seedtts_testset.py -e wer -l zh -g "$gen_wav_dir" -n "$GPUS" $LOCAL
             python src/f5_tts/eval/eval_seedtts_testset.py -e sim -l zh -g "$gen_wav_dir" -n "$GPUS" $LOCAL
-            python src/f5_tts/eval/eval_utmos.py --audio_dir "$gen_wav_dir"
             ;;
         "seedtts_test_en")
             python src/f5_tts/eval/eval_seedtts_testset.py -e wer -l en -g "$gen_wav_dir" -n "$GPUS" $LOCAL
             python src/f5_tts/eval/eval_seedtts_testset.py -e sim -l en -g "$gen_wav_dir" -n "$GPUS" $LOCAL
-            python src/f5_tts/eval/eval_utmos.py --audio_dir "$gen_wav_dir"
             ;;
         "ls_pc_test_clean")
             python src/f5_tts/eval/eval_librispeech_test_clean.py -e wer -g "$gen_wav_dir" -n "$GPUS" -p "$LS_TEST_CLEAN_PATH" $LOCAL
             python src/f5_tts/eval/eval_librispeech_test_clean.py -e sim -g "$gen_wav_dir" -n "$GPUS" -p "$LS_TEST_CLEAN_PATH" $LOCAL
-            python src/f5_tts/eval/eval_utmos.py --audio_dir "$gen_wav_dir"
             ;;
     esac
     

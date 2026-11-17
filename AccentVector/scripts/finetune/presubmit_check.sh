@@ -27,7 +27,7 @@ chk_file "$PRETRAIN"                           "base checkpoint"
 chk_file "$F5_VOCAB"                           "base vocab (F5_VOCAB)"
 chk_file "$F5_ROOT/src/f5_tts/configs/F5TTS_v1_LoRA_accent.yaml" "LoRA config yaml (the one Hydra loads)"
 # the config is the fork's; verify its pinned hyperparameters rather than just its existence
-if python "$ACCENT_DIR/scripts/lib/patch_f5_tts_fork.py" --f5-root "$F5_ROOT" 2>/dev/null \
+if python "$ACCENT_DIR/scripts/common/patch_f5_tts_fork.py" --f5-root "$F5_ROOT" 2>/dev/null \
      | grep -q "^\[FAIL\].*configs/F5TTS_v1_LoRA_accent.yaml"; then
     bad "LoRA config hyperparameters drifted from the pinned recipe (run patch_f5_tts_fork.py to see)"
 else

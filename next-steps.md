@@ -18,9 +18,9 @@
 
 [ ] Text-based interventions
     [ ] Apply LoRA to specific layers
-    [ ] Add language ID conditioning for grounding
+    [ ] Add language ID conditioning for grounding (ablation: is just LID sufficient?)
     [ ] Add a text divergence metric as a loss term when finetuning
-    [ ] Add some English data along with foreign language data
+    [ ] Add some accented English data along with foreign language data
 
 [ ] More experiments
     [ ] Is ‖τ‖ systematically larger for OOD languages than Mandarin?
@@ -51,3 +51,4 @@
 [x] Writing
     [x] Minor corrections
     [x] Add GitHub link
+    [ ] Simon and Catherine's feedback

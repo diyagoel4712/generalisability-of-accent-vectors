@@ -16,13 +16,13 @@ ACCENT_DIR=$(cd "$(dirname "$0")/../.." && pwd)
 F5_ROOT=${F5_ROOT:-"$ACCENT_DIR/../F5-TTS"}
 export PYTHONPATH="$F5_ROOT/src:$ACCENT_DIR/src:${PYTHONPATH:-}"
 
-ACCENT_NAME=${ACCENT_NAME:-british}
+ACCENT_NAME=${ACCENT_NAME:?set ACCENT_NAME (e.g. dutch)}
 PRETRAIN=${PRETRAIN:-"$F5_ROOT/ckpts/F5TTS_v1_Base/model_1250000.pt"}
 VECTOR=${VECTOR:-"$ACCENT_DIR/vectors/${ACCENT_NAME}.pt"}
 ALPHAS=${ALPHAS:-"0,0.25,0.5,0.75,1.0"}
 # native-language (L1) reference for this accent; REF_TEXT must be its transcript
-REF_AUDIO=${REF_AUDIO:-"$ACCENT_DIR/refs/england.wav"}
-REF_TEXT=${REF_TEXT:-"Some call me nature, others call me mother nature."}
+REF_AUDIO=${REF_AUDIO:?set REF_AUDIO (e.g. data/prompts/dutch/dutch_f.wav)}
+REF_TEXT=${REF_TEXT:?set REF_TEXT to the exact transcript of REF_AUDIO}
 TRANSCRIPTS=${TRANSCRIPTS:-"$ACCENT_DIR/data/transcripts/eval_transcripts.txt"}
 OUT_DIR=${OUT_DIR:-"$ACCENT_DIR/results/per-accent/${ACCENT_NAME}"}
 # transcript sharding for multi-GPU fan-out: render only indices == SHARD_INDEX (mod

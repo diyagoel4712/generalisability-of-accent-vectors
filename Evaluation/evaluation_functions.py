@@ -178,8 +178,8 @@ _GENAID_PYTHON = _os.environ.get(
     "GENAID_PYTHON", _os.path.expanduser("~/miniconda3/envs/genaid/bin/python")
 )
 
-# Match accents between GenAID and VCTK
-GENAID_TO_VCTK = {
+# Map GenAID's class labels onto the target-accent label set used by aid_acc
+GENAID_TO_TARGET = {
     "us": "American", "canadian": "Canadian", "australian": "Australian",
     "southasian": "Indian", "english": "English", "southernafrican": "SouthAfrican",
     "irish": "Irish", "scottish": "Scottish", "newzealand": "NewZealand"
@@ -208,15 +208,15 @@ def predict_accent_genaid(wav_files, device="cpu", with_embeddings=False):
         return json.load(fh)
 
 def aid_acc(synthesised_files, target_accents, predict_fn=predict_accent_genaid,
-            label_map=GENAID_TO_VCTK):
+            label_map=GENAID_TO_TARGET):
     """
     accent-ID accuracy: fraction of synthesised clips whose predicted accent matches
     the intended (self-reported) target accent.
 
     IN: list[str]: synthesised wav paths
-        list[str]: intended VCTK accent label per file (same order)
+        list[str]: intended target-accent label per file (same order)
         callable: wav list -> list of {'pred_accent': ...} dicts (GenAID by default)
-        dict|None: maps classifier labels onto the target taxonomy (VCTK)
+        dict|None: maps classifier labels onto the target taxonomy
     OUT: float: accuracy in [0, 1]
     """
     preds = predict_fn(synthesised_files)

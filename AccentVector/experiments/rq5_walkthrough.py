@@ -8,10 +8,9 @@ Run it with no vectors at all to see a worked example on synthetic accents with 
 known family structure (so you know what a *positive* result looks like), then run
 it again pointed at the real snapshots and compare:
 
-    python -m accent_vector.experiments.rq5_walkthrough --demo
+    python -m experiments.rq5_walkthrough --demo
 
-    python -m accent_vector.experiments.rq5_walkthrough \
-        --vector british=<ckpt>/british/snapshots/lora_60000.pt \
+    python -m experiments.rq5_walkthrough \
         --vector dutch=<ckpt>/dutch/snapshots/lora_60000.pt \
         --vector hindi=<ckpt>/hindi/snapshots/lora_60000.pt \
         --vector bengali=<ckpt>/bengali/snapshots/lora_60000.pt
@@ -25,7 +24,7 @@ import textwrap
 import numpy as np
 import torch
 
-from accent_vector.experiments.rq5_gram import (
+from experiments.rq5_gram import (
     cosine_from_gram,
     gram,
     load_lora_vector,

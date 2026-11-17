@@ -199,7 +199,9 @@ def main():
                         "toward low sample numbers (which track submission era)")
     p.add_argument("--cache-dir", default=".saa_cache")
     p.add_argument("--sleep", type=float, default=1.0, help="delay between live requests (s)")
-    p.add_argument("--out-csv", default="saa_selection.csv")
+    # outputs are data, not code: they live in Datasets/saa/, resolved from this file
+    p.add_argument("--out-csv",
+                   default=str(Path(__file__).resolve().parents[2] / "saa" / "saa_selection.csv"))
     p.add_argument("--rejects-csv", default=None,
                    help="optional: write every scraped speaker with its keep/reject reason")
     p.add_argument("--download-audio", action="store_true")

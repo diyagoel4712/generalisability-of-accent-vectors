@@ -47,16 +47,13 @@ bash src/f5_tts/eval/eval_infer_batch.sh
 
 ### Objective Evaluation Examples
 
-Update the path with your batch-inferenced results, and carry out WER / SIM / UTMOS evaluations:
+Update the path with your batch-inferenced results, and carry out WER / SIM evaluations:
 ```bash
 # Evaluation [WER] for Seed-TTS test [ZH] set
 python src/f5_tts/eval/eval_seedtts_testset.py --eval_task wer --lang zh --gen_wav_dir <GEN_WAV_DIR> --gpu_nums 8
 
 # Evaluation [SIM] for LibriSpeech-PC test-clean (cross-sentence)
 python src/f5_tts/eval/eval_librispeech_test_clean.py --eval_task sim --gen_wav_dir <GEN_WAV_DIR> --librispeech_test_clean_path <TEST_CLEAN_PATH>
-
-# Evaluation [UTMOS]. --ext: Audio extension
-python src/f5_tts/eval/eval_utmos.py --audio_dir <WAV_DIR> --ext wav
 ```
 
 > [!NOTE]  

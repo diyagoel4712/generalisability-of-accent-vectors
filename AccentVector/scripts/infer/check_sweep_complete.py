@@ -12,7 +12,7 @@ Checks both the COUNT and the exact index set 0..expected-1, so a shard that dro
 is reported as missing [3] even if some other file inflates the count.
 
     python scripts/infer/check_sweep_complete.py --root results/per-accent/dutch
-    python scripts/infer/check_sweep_complete.py --root results/per-accent/british --expected 20
+    python scripts/infer/check_sweep_complete.py --root results/per-accent/dutch --expected 20
 Exit code is nonzero if any alpha dir is incomplete, so it can gate an eval script:
     python scripts/infer/check_sweep_complete.py --root results/per-accent/dutch && bash run_eval.sh
 """

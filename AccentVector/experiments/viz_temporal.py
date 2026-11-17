@@ -11,9 +11,9 @@ synchronised panels, one frame per snapshot:
 The H6 story is visual: cos saturates well before magnitude => the accent direction
 is learnable from little optimisation and alpha supplies the remaining intensity.
 
-    python -m accent_vector.experiments.viz_temporal \
-        --ckpt-dir exps/F5TTS_v1_LoRA_british/<run>/ckpts/snapshots \
-        --out results/per-accent/british/temporal.mp4
+    python -m experiments.viz_temporal \
+        --ckpt-dir exps/F5TTS_v1_LoRA_dutch/<run>/ckpts/snapshots \
+        --out results/per-accent/dutch/temporal.mp4
 """
 
 import argparse
@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 from matplotlib import animation
 
 from accent_vector import shared
-from accent_vector.experiments.rq2_temporal import collect_checkpoints, _vector_1d_lora
+from experiments.rq2_temporal import collect_checkpoints, _vector_1d_lora
 
 
 def _load_trajectory(ckpt_dir, include, exclude):

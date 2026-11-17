@@ -2,12 +2,11 @@
 
     load_eval                     eval-suite bridge      (score_sweep, score_prosody)
     alpha_dirs, wavs_in           synthesis-grid IO      (score_sweep, score_prosody)
-    cosine_matrix, classical_mds  vector geometry        (experiments/)
+    cosine_matrix, classical_mds  vector geometry        (experiments/viz_temporal)
     leakage_onset                 threshold crossing     (score_sweep, experiments/)
 
-Single-use helpers live in the module that uses them: the vector flattener and
-Mantel test in experiments/rq5_geometry; the voicing-rhythm math and gap-closure
-in score_prosody; utt_index in score_sweep.
+Single-use helpers live in the module that uses them: the voicing-rhythm math and
+gap-closure in score_prosody; utt_index in score_sweep.
 """
 
 import re

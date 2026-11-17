@@ -42,7 +42,7 @@ The paper uses XTTS-v2; we use F5-TTS. Two consequences:
    qsub scripts/finetune/finetune_wrapper_eddie.sh model.arch.lora_rank=32 optim.learning_rate=1e-4
    ```
 
-   `scripts/lib/patch_f5_tts_fork.py` warns when the installed config differs from the
+   `scripts/common/patch_f5_tts_fork.py` warns when the installed config differs from the
    recipe the write-up reports, so a sweep is never mistaken for the headline run.
 
    > A LoRA snapshot's delta lives in adapter keys that are absent from the base
@@ -171,8 +171,9 @@ src/accent_vector/       the importable package -- src layout, so PYTHONPATH=src
   score_prosody.py       -> rq3.csv: segmental (PPG-KL) + suprasegmental
   shared.py              eval-suite bridge, sweep IO, geometry, threshold onset
   sample_checkpoints.py  synthesise a fixed prompt at every LoRA snapshot
-  experiments/           unfinished analyses, kept for the write-up (see its
-                         __init__.py: none of them has produced output)
+experiments/             unfinished analyses, kept for the write-up (see its
+                         __init__.py: none of them has produced output). Outside
+                         the package; run as PYTHONPATH=src python -m experiments.<m>
 scripts/                 finetune / extract / infer / evaluate wrappers and the
                          Eddie array jobs (these export PYTHONPATH=$ACCENT_DIR/src)
 notebooks/               dissertation_figures.ipynb -- every figure, by RQ
@@ -193,7 +194,7 @@ are git-ignored, as is `data/` apart from the eval assets re-included in
 
 ```bash
 # after A0 produces the LoRA snapshots: submit the checkpoint x alpha grid.
-# (accent_vector.experiments.grid was the standalone driver for this and is gone;
+# (experiments.grid was the standalone driver for this and is gone;
 #  the Eddie array does the job -- see scripts/infer/submit_<accent>_ckpt_grid.sh)
 bash scripts/infer/submit_dutch_ckpt_grid.sh      # A1 -> results/per-accent/<accent>/<ref>/<spk>/audio/step_<n>/alpha_<a>/
 
@@ -205,16 +206,13 @@ for s in results/per-accent/indian/*/; do sp=$(basename "$s")
   python -m accent_vector.score_prosody --sweep-dir "$s" \
       --natural-ref data/ground_truth_refs/$acc/$g --out-csv "$s/rq3.csv"
 done
-python -m accent_vector.experiments.aggregate --accent-dir results/per-accent/indian --csv-name rq1.csv --out-dir results/per-accent/indian
-python -m accent_vector.experiments.aggregate --accent-dir results/per-accent/indian --csv-name rq3.csv --out-dir results/per-accent/indian
-# (aggregate is unrun -- see experiments/__init__.py)
+# pooling across speakers happens in notebooks/dissertation_figures.ipynb
 
-python -m accent_vector.experiments.rq3_layers --vector vectors/indian.pt \
+python -m experiments.rq3_layers --vector vectors/indian.pt \
     --out-csv results/per-accent/indian/rq3_layers.csv          # vector-only; UNRUN, see experiments/__init__.py
-python -m accent_vector.experiments.rq5_geometry --vector indian=vectors/indian.pt \
-    --vector spanish=vectors/spanish.pt --synth indian=results/per-accent/indian/p1/alpha_1.0 \
-    --synth spanish=results/per-accent/spanish/s1/alpha_1.0 --out-dir results/geometry   # UNRUN
-python -m accent_vector.experiments.rq2_temporal \
+python -m experiments.rq5_gram --vector dutch=<ckpt>/dutch/snapshots/lora_60000.pt \
+    --vector hindi=<ckpt>/hindi/snapshots/lora_60000.pt --out-dir results/geometry   # UNRUN
+python -m experiments.rq2_temporal \
     --ckpt-dir exps/F5TTS_v1_LoRA_indian/<run>/ckpts/snapshots \
     --out-csv results/per-accent/indian/temporal.csv            # UNRUN
 ```
@@ -254,6 +252,6 @@ for s in results/per-accent/dutch/GAE/by_step/step_*/; do
     --transcripts data/transcripts/eval_transcripts.txt --ref-wav data/prompts/GAE/gae_f.wav \
     --accent-ref data/ground_truth_refs/dutch/female --lid --out-csv "$s/rq1.csv"
 done
-python -m accent_vector.experiments.rq2_behavioural \  # UNRUN
+python -m experiments.rq2_behavioural \  # UNRUN
     --by-step-dir results/per-accent/dutch/GAE/by_step --out-dir results/per-accent/dutch/GAE/trajectory
 ```

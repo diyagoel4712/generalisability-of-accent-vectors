@@ -16,8 +16,9 @@ natural target accent, or is the shift segmental-dominated?
                       widest for a prosodically-distant accent)
 
     python -m accent_vector.score_prosody \
-        --sweep-dir results/per-accent/british --natural-ref /data/vctk_england_clips \
-        --out-csv results/per-accent/british/rq3.csv
+        --sweep-dir results/per-accent/dutch/l1/f/audio/step_60000 \
+        --natural-ref data/ground_truth_refs/dutch/female \
+        --out-csv results/per-accent/dutch/l1/f/metrics/step_60000/rq3.csv
 """
 
 import argparse

@@ -26,7 +26,7 @@ accent vector and would pollute magnitude/direction).
 The accent vector IS the LoRA weights, so tau_t is read straight from the
 ``lora_<step>.pt`` snapshots -- point ``--ckpt-dir`` at the snapshots dir:
 
-    python -m accent_vector.experiments.rq2_temporal \
+    python -m experiments.rq2_temporal \
         --ckpt-dir exps/F5TTS_v1_LoRA_dutch/<run>/ckpts/snapshots \
         --out-csv results/per-accent/dutch/temporal.csv
 """

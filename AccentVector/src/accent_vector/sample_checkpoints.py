@@ -12,11 +12,11 @@ several --lora-alpha values), with no checkpoint merge. Shares its base+LoRA
 build with infer_accent via accent_vector.lora_model.
 
     python -m accent_vector.sample_checkpoints \
-        --run-dir exps/F5TTS_v1_LoRA_british/<run> \
+        --run-dir exps/F5TTS_v1_LoRA_dutch/<run> \
         --base-ckpt ckpts/F5TTS_v1_Base/model_1250000.pt \
         --ref-audio ref.wav --ref-text "..." \
         --gen-text "The quick brown fox jumps over the lazy dog." \
-        --out-dir results/per-accent/british/scrub
+        --out-dir results/per-accent/dutch/scrub
 """
 
 import argparse

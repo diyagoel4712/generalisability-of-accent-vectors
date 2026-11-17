@@ -7,8 +7,8 @@ magnitude. Groups that carry a large share are candidates to scale on their own
 (via ``infer_accent --include-layers ...``) to test their segmental vs
 suprasegmental effect -- the ablation that localises where prosody lives.
 
-    python -m accent_vector.experiments.rq3_layers \
-        --vector vectors/british.pt --out-csv results/per-accent/british/rq3_layers.csv
+    python -m experiments.rq3_layers \
+        --vector vectors/dutch.pt --out-csv results/per-accent/dutch/rq3_layers.csv
 """
 
 import argparse

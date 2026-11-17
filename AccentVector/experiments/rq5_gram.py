@@ -41,12 +41,12 @@ at inference via ``set_lora_alpha``, which scales the branch OUTPUT and is corre
 
 Usage
 -----
-    python -m accent_vector.experiments.rq5_gram \
-        --vector british=vectors/british_lora.pt \
+    python -m experiments.rq5_gram \
+        --vector arabic=vectors/arabic_lora.pt \
         --vector dutch=vectors/dutch_lora.pt \
         --vector hindi=vectors/hindi_lora.pt \
         --vector bengali=vectors/bengali_lora.pt \
-        --family british=germanic --family dutch=germanic \
+        --family dutch=germanic --family arabic=semitic \
         --family hindi=indic --family bengali=indic \
         --replicate hindi=snapshots/hindi/lora_45000.pt \
         --out-dir results/geometry/gram

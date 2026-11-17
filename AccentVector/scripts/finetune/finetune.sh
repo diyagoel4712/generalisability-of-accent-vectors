@@ -3,8 +3,8 @@
 # Run once per accent. The fork's finetune_cli.py is Hydra-based, so overrides use
 # key=value syntax (NOT --flags).
 #
-#   ACCENT_NAME=british \
-#   METADATA_CSV=/path/to/british.csv AUDIO_ROOT=/path/to/audio \
+#   ACCENT_NAME=dutch \
+#   METADATA_CSV=/path/to/metadata.dnsmos.csv AUDIO_ROOT=/path/to/audio \
 #   PRETRAIN=$F5_ROOT/ckpts/F5TTS_v1_Base/model_1250000.pt \
 #   CKPT_ROOT=exps \
 #   bash scripts/finetune/finetune.sh
@@ -29,7 +29,7 @@ export PYTHONPATH="$F5_ROOT/src:$ACCENT_DIR/src:${PYTHONPATH:-}"
 
 CKPT_ROOT=${CKPT_ROOT:?set CKPT_ROOT (e.g. exps locally, or scratch on the HPC -- the eddie wrapper sets it)}
 
-ACCENT_NAME=${ACCENT_NAME:?set ACCENT_NAME (e.g. british)}
+ACCENT_NAME=${ACCENT_NAME:?set ACCENT_NAME (e.g. dutch)}
 PRETRAIN=${PRETRAIN:-"$F5_ROOT/ckpts/F5TTS_v1_Base/model_1250000.pt"}
 LORA_LABEL=${LORA_LABEL:-0}                       # single accent -> one label
 DATA_DIR="$F5_ROOT/data/${ACCENT_NAME}_pinyin"    # finetune_cli expects <name>_pinyin/

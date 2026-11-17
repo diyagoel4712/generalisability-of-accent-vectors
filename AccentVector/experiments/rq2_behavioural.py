@@ -27,7 +27,7 @@ How to read it for the core question:
     spot. (Metric-agnostic: point --csv-name at rq3.csv to trend the segmental/
     suprasegmental columns across training instead.)
 
-    python -m accent_vector.experiments.rq2_behavioural \
+    python -m experiments.rq2_behavioural \
         --by-step-dir results/per-accent/dutch/GAE/by_step --csv-name rq1.csv \
         --out-dir results/per-accent/dutch/GAE/trajectory
 """
@@ -40,10 +40,31 @@ from pathlib import Path
 import numpy as np
 
 from accent_vector import shared
-from accent_vector.experiments.aggregate import read_metric_csv
 
 DROP_COLS = {"n"}  # bookkeeping columns that aren't metrics
 
+
+
+def read_metric_csv(path):
+    """[(alpha, {col: float})] from a metric CSV, skipping '#' summary footer lines
+    and any non-numeric cells."""
+    rows = []
+    with open(path) as f:
+        reader = csv.DictReader(line for line in f if not line.startswith("#"))
+        for row in reader:
+            a = row.get("alpha")
+            if a in (None, "", "None"):
+                continue
+            vals = {}
+            for k, v in row.items():
+                if k == "alpha":
+                    continue
+                try:
+                    vals[k] = float(v)
+                except (TypeError, ValueError):
+                    pass
+            rows.append((float(a), vals))
+    return rows
 
 def _spearman(xs, ys):
     """Rank correlation of ys against xs; nan if <3 usable pairs."""

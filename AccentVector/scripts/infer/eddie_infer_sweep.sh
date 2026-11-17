@@ -4,7 +4,7 @@
 # RUN_DIR and VECTOR are required; everything else has a default:
 #   qsub -N infer_dutch -v ACCENT_NAME=dutch,RUN_DIR=<run dir>,VECTOR=<run dir>/ckpts/snapshots/lora_60000.pt \
 #        scripts/infer/eddie_infer_sweep.sh
-# For the full accent x ref_kind x speaker grid use submit_infer_sweeps.sh (array job)
+# For the full accent x ref_kind x speaker grid use submit_<accent>_ckpt_grid.sh (array job)
 # instead; this wrapper is the single-sweep path for a one-off or a debug run.
 # The job name is static (SGE parses -N before the script runs); override it on the
 # command line to match, e.g. -N infer_dutch.
@@ -112,7 +112,7 @@ for f in "$VECTOR" "$CONFIG" "$VOCAB" "$REF_AUDIO"; do
 done
 
 # record run provenance (best-effort; must never kill the GPU job).
-bash "$ACCENT_DIR/scripts/lib/record_provenance.sh" "$ACCENT_DIR" "$F5_ROOT" "$OUT_DIR/provenance" \
+bash "$ACCENT_DIR/scripts/common/record_provenance.sh" "$ACCENT_DIR" "$F5_ROOT" "$OUT_DIR/provenance" \
     || echo "warning: provenance capture failed (continuing)"
 
 # the sweep itself (env vars above are read by infer_sweep.sh).

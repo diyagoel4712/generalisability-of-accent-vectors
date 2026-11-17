@@ -1,8 +1,8 @@
 #!/bin/bash
 # Eddie (SGE) batch job: build one IndicVoices-R accent dataset for F5-TTS. CPU-only.
 # Runs once per accent -- set IVLANG on the qsub line:
-#   qsub -v IVLANG=hi Datasets/scripts/indicvoices/prep_indicvoices.sh   # Hindi
-#   qsub -v IVLANG=bn Datasets/scripts/indicvoices/prep_indicvoices.sh   # Bengali
+#   qsub -v IVLANG=hi Datasets/prep-scripts/indicvoices/prep_indicvoices.sh   # Hindi
+#   qsub -v IVLANG=bn Datasets/prep-scripts/indicvoices/prep_indicvoices.sh   # Bengali
 #
 # RESUMABLE: each step is skipped if its output already exists, so re-submitting after
 # a wall-time kill continues from where it stopped (e.g. decode done -> only DNSMOS runs).
@@ -44,8 +44,8 @@ CLIPS=$WORK/clips                        # wavs/ + metadata.csv (+ .dnsmos.csv +
 
 HOURS=${HOURS:-100}
 JOBS=${JOBS:-8}                          # DNSMOS worker processes; match -pe sharedmem above
-CGN=Datasets/scripts/cgn                 # reuse the format-generic dnsmos/vocab_check
-IV=Datasets/scripts/indicvoices
+COMMON=Datasets/prep-scripts/common           # corpus-agnostic dnsmos_filter / vocab_check
+IV=Datasets/prep-scripts/indicvoices
 F5_ROOT=${F5_ROOT:-"$PWD/F5-TTS"}
 mkdir -p "$WORK"
 
@@ -71,7 +71,7 @@ fi
 
 # 3. DNSMOS quality filter (p808 >= 3.4) -> metadata.dnsmos.csv. Parallel across $JOBS cores.
 if [ ! -f "$CLIPS/metadata.dnsmos.csv" ]; then
-    python $CGN/dnsmos_filter.py --clips "$CLIPS" --min 3.4 --metric p808 --jobs "$JOBS"
+    python $COMMON/dnsmos_filter.py --clips "$CLIPS" --min 3.4 --metric p808 --jobs "$JOBS"
 else
     echo "skip DNSMOS: $CLIPS/metadata.dnsmos.csv exists"
 fi
@@ -88,6 +88,6 @@ fi
 
 # 5. verify 0 OOV against the pretrained vocab (the finetune's `prepare` will build the
 #    Arrow from this CSV -- so this is the gate; no Arrow is built here on purpose).
-python $CGN/vocab_check.py --metadata "$CLIPS/metadata.roman.csv" ${VOCAB:+--vocab "$VOCAB"}
+python $COMMON/vocab_check.py --metadata "$CLIPS/metadata.roman.csv" ${VOCAB:+--vocab "$VOCAB"}
 
 echo "done: $IVLANG -> $CLIPS/metadata.roman.csv (feed this to the finetune as METADATA_CSV)"

@@ -13,7 +13,7 @@ apply it by hand instead of silently leaving broken source.
 
 Usage
 -----
-    python scripts/lib/patch_f5_tts_fork.py [--f5-root /path/to/F5-TTS]
+    python scripts/common/patch_f5_tts_fork.py [--f5-root /path/to/F5-TTS]
 
 Also VERIFIES F5TTS_v1_LoRA_accent.yaml, which is dissertation-authored rather
 than upstream and now lives in the F5-TTS fork repo itself. Earlier versions of

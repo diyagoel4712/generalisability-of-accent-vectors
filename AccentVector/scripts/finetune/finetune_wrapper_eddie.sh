@@ -67,7 +67,7 @@ python -c "import torch; print('torch', torch.__version__, 'cuda', torch.version
 
 # record run provenance (code versions + config) -> log + CKPT_ROOT/provenance/.
 # Best-effort: a provenance hiccup must never kill the GPU job.
-bash "$ACCENT_DIR/scripts/lib/record_provenance.sh" "$ACCENT_DIR" "$F5_ROOT" "$CKPT_ROOT/provenance" \
+bash "$ACCENT_DIR/scripts/common/record_provenance.sh" "$ACCENT_DIR" "$F5_ROOT" "$CKPT_ROOT/provenance" \
     || echo "warning: provenance capture failed (continuing)"
 
 # builds data/<accent>_pinyin (prepare) if needed, then LoRA fine-tunes.
